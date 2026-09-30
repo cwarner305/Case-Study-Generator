@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Neuro Case Lab</title>
+<style>
+:root{--gold:#C9A23F;--black:#000;--ink:#111;--muted:#666;--paper:#fff;--soft:#f6f4ee;--good:#176b3a;--warn:#8a6413;--bad:#a52a2a;--blue:#244f78}
+*{box-sizing:border-box} body{margin:0;background:#efefec;color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.45}
+header{background:#000;color:#fff;border-top:10px solid var(--gold);padding:24px 28px 20px;position:relative}
+header h1{margin:0;font-size:34px} header p{margin:5px 0 0;color:#ddd;font-size:16px}.version{position:absolute;right:20px;top:14px;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.08em}
+.wrap{max-width:1200px;margin:22px auto;padding:0 14px}.card{background:#fff;border:1px solid #cfcfcf;border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px #00000012}.hidden{display:none!important}
+.eyebrow{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#725813}.goldline{border-left:6px solid var(--gold);padding-left:12px}.lead{font-size:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.statusbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}.stat{background:#fff;border:1px solid #ccc;border-radius:8px;padding:10px}.stat span{display:block;color:#666;font-size:11px;text-transform:uppercase;font-weight:800}.stat b{font-size:19px}
+button{font:inherit}.btn{border:2px solid #000;background:#fff;border-radius:8px;padding:11px 14px;font-weight:800;cursor:pointer}.btn:hover{background:#f6f6f6}.btn.primary{background:#000;color:#fff;border-color:#000}.btn.primary:hover{background:#222}.btn.gold{background:var(--gold);border-color:#000}.btn:disabled{opacity:.4;cursor:not-allowed}
+.diffrow{display:flex;gap:8px;flex-wrap:wrap}.diffChoice{position:relative;min-width:150px;flex:1}.diffRadio{position:absolute;opacity:0;pointer-events:none}.diff{display:block;border:2px solid #bbb;border-radius:9px;padding:14px;background:#fff;cursor:pointer;width:100%;height:100%;touch-action:manipulation;-webkit-tap-highlight-color:rgba(201,162,63,.25);user-select:none}.diffRadio:checked + .diff{border-color:#000;box-shadow:inset 0 0 0 3px var(--gold);background:#fffaf0}.diffRadio:focus-visible + .diff{outline:3px solid #eadb9d;outline-offset:2px}.diff strong{display:block}.diff small{color:#666}
+.caseText{font-size:18px;line-height:1.65;background:#fafafa;border:1px solid #ddd;border-radius:8px;padding:16px;white-space:pre-line}.caseMeta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}.pill{border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;border:1px solid #bbb;background:#fff}.pill.gold{background:#fff8df;border-color:var(--gold)}
+.regionGroups{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.regionGroup{border:1px solid #ccc;border-radius:9px;overflow:hidden}.regionGroup h4{margin:0;background:#000;color:#fff;padding:9px 11px;font-size:14px}.regionList{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:4px 10px}.regionOpt{display:flex;gap:7px;align-items:flex-start;padding:7px 3px;border-bottom:1px dotted #ddd}.regionOpt input{margin-top:3px;transform:scale(1.1)}.regionOpt label{cursor:pointer;font-size:14px}.regionOpt .tag{font-size:10px;font-weight:900;margin-left:5px;border-radius:4px;padding:1px 4px}.tag.new{background:#dff1ff;color:#184f78}.tag.kept{background:#e6f4e9;color:#176b3a}.tag.returned{background:#fff1c7;color:#725813}
+textarea{width:100%;min-height:105px;border:2px solid #aaa;border-radius:8px;padding:11px;font:inherit;resize:vertical}textarea:focus{outline:3px solid #eadb9d;border-color:#000}.counter{font-size:12px;color:#666;text-align:right}.helper{font-size:13px;color:#555}.warnbox{background:#fff8df;border:1px solid var(--gold);padding:10px 12px;border-radius:8px}
+.testGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.test{border:2px solid #bbb;border-radius:9px;background:#fff;padding:12px;text-align:left;cursor:pointer}.test:hover{border-color:#000}.test.used{opacity:.55;cursor:not-allowed}.test strong{display:block;margin-bottom:4px}.test small{color:#666}.result{border-left:6px solid var(--gold);background:#fffaf0;padding:14px;border-radius:6px;margin-top:12px;font-size:16px}.result b{display:block;margin-bottom:5px}
+.path{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.pathStep{background:#f5f5f5;border:1px solid #ccc;padding:7px 9px;border-radius:7px;font-size:12px}.arrow{font-weight:900;color:#8a6a16}
+.scoreBig{font-size:42px;font-weight:900;color:#725813}.scoreLine{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;border-bottom:1px solid #ddd;padding:8px 0}.scoreLine:last-child{border-bottom:0}.good{color:var(--good)}.bad{color:var(--bad)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}.compareBox{border:2px solid #ccc;border-radius:9px;padding:14px;background:#fff}.compareBox.model{border-color:var(--gold);background:#fffaf0}.compareBox h3{margin-top:0}.reflection{background:#f7f7f7;border:1px solid #ccc;border-radius:8px;padding:13px}.reflection label{display:block;margin:7px 0}
+
+.progressbar{height:12px;background:#e7e7e7;border:1px solid #bbb;border-radius:999px;overflow:hidden}.progressfill{height:100%;background:var(--gold);width:0%}.evidenceItem{border-left:5px solid #000;background:#fafafa;padding:10px 12px;margin:8px 0;border-radius:6px}.evidenceItem.testEvidence{border-left-color:var(--gold)}.evidenceItem b{display:block;margin-bottom:4px}.feedbackGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.feedbackCard{border:1px solid #ccc;border-radius:8px;padding:12px;background:#fff}.feedbackCard.supported{border-left:6px solid var(--good)}.feedbackCard.missed{border-left:6px solid var(--gold)}.feedbackCard.unsupported{border-left:6px solid var(--bad)}.actionRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.actionRow .btn{flex:1;min-width:180px}.xpBadge{display:inline-block;background:#000;color:#fff;border-radius:999px;padding:5px 10px;font-weight:800}.rankBox{background:#fffaf0;border:2px solid var(--gold);border-radius:9px;padding:12px}.miniStats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.miniStat{background:#fafafa;border:1px solid #ccc;border-radius:8px;padding:9px}.miniStat span{display:block;font-size:10px;text-transform:uppercase;font-weight:800;color:#666}.miniStat b{font-size:18px}@media(max-width:800px){.feedbackGrid,.miniStats{grid-template-columns:1fr 1fr}.actionRow .btn{min-width:100%}}
+footer{text-align:center;color:#777;font-size:12px;padding:20px}
+@media(max-width:800px){.grid2,.grid3,.regionGroups,.compare,.testGrid{grid-template-columns:1fr}.statusbar{grid-template-columns:1fr 1fr}.regionList{grid-template-columns:1fr}header h1{font-size:28px}.diffrow{display:grid;grid-template-columns:1fr;gap:10px}.diffChoice{width:100%;min-width:0}.diff{width:100%;min-width:0;display:block;text-align:left;padding:16px;font-size:17px}.diff small{display:block;margin-top:4px;font-size:13px}.wrap{padding:0 10px;margin-top:14px}}
+@media print{body{background:#fff}header{color:#000;background:#fff;border-top:6px solid #000}header p,.version{color:#333}.noPrint,.btn{display:none!important}.card{box-shadow:none;break-inside:avoid}.wrap{max-width:none;margin:0}.hidden{display:none!important}}
+</style>
+</head>
+<body>
+<header>
+<div class="version">VERSION 0.6.0</div>
+<h1>NEURO CASE LAB</h1>
+<p>Hypothesize • Test • Build Evidence • Revise When Needed • Explain</p>
+</header>
+<div class="wrap">
+<section id="start" class="card">
+  <div class="eyebrow">Start a case</div>
+  <h2>How difficult should the patient be?</h2>
+  <p class="lead">Every case uses only the Level 1 + Level 2 neuroanatomy structures, but harder cases combine systems, preserved functions, and competing explanations.</p>
+  <div class="rankBox" style="margin-bottom:14px"><div class="eyebrow">Your progress on this device</div><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3 id="startRank" style="margin:5px 0">Neuro Intern</h3><span id="startXP" class="xpBadge">0 XP</span></div><div class="progressbar"><div id="startProgressFill" class="progressfill"></div></div><div class="miniStats"><div class="miniStat"><span>Cases</span><b id="startCases">0</b></div><div class="miniStat"><span>Current streak</span><b id="startStreak">0</b></div><div class="miniStat"><span>Best streak</span><b id="startBest">0</b></div><div class="miniStat"><span>Case bank</span><b>60+</b></div></div></div>
+  <div id="diffs" class="diffrow" role="radiogroup" aria-label="Case difficulty">
+    <div class="diffChoice"><input class="diffRadio" type="radio" name="difficulty" id="diff1" value="1"><label class="diff" for="diff1"><strong>1 • Foundations</strong><small>Level 1 review • mostly one-region cases with useful intact-function clues.</small></label></div>
+    <div class="diffChoice"><input class="diffRadio" type="radio" name="difficulty" id="diff2" value="2"><label class="diff" for="diff2"><strong>2 • Developing</strong><small>Level 1 + Level 2 review • one main region with stronger distractors.</small></label></div>
+    <div class="diffChoice"><input class="diffRadio" type="radio" name="difficulty" id="diff3" value="3"><label class="diff" for="diff3"><strong>3 • Systems</strong><small>Current-style systems reasoning • several plausible regions; tests separate them.</small></label></div>
+    <div class="diffChoice"><input class="diffRadio" type="radio" name="difficulty" id="diff4" value="4"><label class="diff" for="diff4"><strong>4 • Advanced</strong><small>Two-region or multi-system cases with misleading clues.</small></label></div>
+    <div class="diffChoice"><input class="diffRadio" type="radio" name="difficulty" id="diff5" value="5"><label class="diff" for="diff5"><strong>5 • Challenge</strong><small>Level 3-style cases requiring preserved-function and rule-out reasoning.</small></label></div>
+    <div class="diffChoice"><input class="diffRadio" type="radio" name="difficulty" id="diffAll" value="all" checked><label class="diff" for="diffAll"><strong>Mixed</strong><small>Random difficulty 1–5.</small></label></div>
+  </div>
+  <div class="warnbox" style="margin-top:14px"><b>Scoring:</b> A correct region first identified from the opening case is worth <b>3×</b> the case value. A correct region first identified after the first test is worth <b>2×</b>. A correct region first identified after any additional testing is worth <b>1×</b>. The goal is not to guess one structure early—it is to build and revise a defensible explanation.</div>
+  <button type="button" id="startBtn" class="btn primary" style="margin-top:14px;width:100%;min-height:52px">Start Random Case</button>
+  <div id="startStatus" class="helper" aria-live="polite" style="margin-top:8px">Mixed difficulty selected. Tap Start Random Case.</div>
+</section>
+
+<section id="game" class="hidden">
+  <div class="statusbar">
+    <div class="stat"><span>Case</span><b id="caseId">—</b></div>
+    <div class="stat"><span>Difficulty</span><b id="caseDiff">—</b></div>
+    <div class="stat"><span>Stage</span><b id="stageName">—</b></div>
+    <div class="stat"><span>Possible Multiplier</span><b id="multiplier">—</b></div>
+  </div>
+
+  <section class="card">
+    <div class="caseMeta"><span class="pill gold">Clinical Case</span><span id="caseValue" class="pill"></span></div>
+    <div class="eyebrow">Patient presentation</div>
+    <div id="caseText" class="caseText"></div>
+  </section>
+
+  <section id="hypSection" class="card">
+    <div class="goldline">
+      <div class="eyebrow" id="hypEyebrow">Round 1</div>
+      <h2 id="hypTitle">Initial hypothesis</h2>
+      <p id="hypPrompt">Select every brain region that could reasonably be involved. You are not diagnosing yet.</p>
+    </div>
+    <div class="warnbox"><b id="limitText">Select up to 6 regions.</b> You may add a region later if new evidence points somewhere you did not originally choose.</div>
+    <div id="regions" class="regionGroups" style="margin-top:12px"></div>
+    <div style="margin-top:14px">
+      <label for="reasoning"><b id="reasonLabel">Reasoning — Why could these regions explain the opening symptoms?</b></label>
+      <textarea id="reasoning" placeholder="Use specific symptoms, functions, and preserved abilities as evidence."></textarea>
+      <div class="counter"><span id="selectedCount">0</span> selected</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" id="lockHyp" class="btn primary">Lock Hypothesis</button>
+      <button type="button" id="moreTesting" class="btn hidden">Administer More Testing</button>
+    </div>
+  </section>
+
+  <section id="testSection" class="card hidden">
+    <div class="eyebrow">Collect one more piece of evidence</div>
+    <h2 id="testTitle">Choose a test</h2>
+    <p>Choose <b>one</b> examination or task. The choices are intentionally not labeled by brain function—you must decide what each one could help you learn from this particular patient.</p>
+    <div id="tests" class="testGrid"></div>
+    <div id="testResult" class="result hidden"></div>
+    <div id="postTestActions" class="actionRow hidden">
+      <button type="button" id="continueAfterTest" class="btn primary">Revise My Hypothesis</button>
+      <button type="button" id="testAgainBtn" class="btn">Run Another Test</button>
+      <button type="button" id="submitFromTestBtn" class="btn gold">Submit Current Diagnosis</button>
+    </div>
+  </section>
+
+  <section id="evidenceCard" class="card">
+    <div class="eyebrow">Evidence board</div>
+    <h2 style="margin-top:4px">Keep the evidence in view</h2>
+    <p class="helper">Every test result stays here so you can compare evidence before deciding whether to test, revise, or submit.</p>
+    <div id="evidenceBoard"></div>
+  </section>
+
+  <section id="pathCard" class="card">
+    <div class="eyebrow">Your diagnostic path</div>
+    <div id="path" class="path"><span class="helper">Your choices will appear here.</span></div>
+  </section>
+
+
+</section>
+
+<section id="end" class="hidden">
+  <section class="card">
+    <div class="eyebrow">Case result</div>
+    <h2 id="diagnosisHeading">Diagnosis</h2>
+    <div class="grid2">
+      <div><div class="helper">YOUR FINAL DIAGNOSIS</div><h3 id="studentDx"></h3></div>
+      <div><div class="helper">ACTUAL DIAGNOSIS</div><h3 id="actualDx"></h3></div>
+    </div>
+    <div class="grid2">
+      <div><div class="helper">DIAGNOSTIC POINTS</div><div class="scoreBig" id="score">0</div></div>
+      <div><div class="helper">MAX FOR THIS CASE</div><div class="scoreBig" id="maxScore">0</div></div>
+    </div>
+    <div id="scoreBreakdown"></div>
+    <div id="xpAward" class="rankBox" style="margin-top:14px"></div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">Structure-by-structure feedback</div>
+    <h2>Why each choice did—or did not—fit</h2>
+    <div id="structureFeedback" class="feedbackGrid"></div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">Higher-order comparison</div>
+    <h2>Compare your reasoning to an example</h2>
+    <div class="compare">
+      <div class="compareBox"><h3>Your reasoning</h3><div id="studentReason"></div></div>
+      <div class="compareBox model"><h3>Example of strong reasoning</h3><div id="modelReason"></div></div>
+    </div>
+    <div class="reflection" style="margin-top:14px">
+      <b>Self-check</b>
+      <label><input type="checkbox"> We both used some of the same evidence.</label>
+      <label><input type="checkbox"> The example used evidence I missed.</label>
+      <label><input type="checkbox"> I used an intact ability to rule something out.</label>
+      <label><input type="checkbox"> I would change part of my explanation after comparing them.</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">Your thinking over time</div>
+    <div id="endPath" class="path"></div>
+    <div class="noPrint" style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" onclick="newCase()">New Random Case</button>
+      <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </section>
+</section>
+</div>
+<footer>Neuro Case Lab • Level 1 + Level 2 knowledge • Level 3-style reasoning</footer>
+
+<script>
+const GROUPS={
+  "Frontal + Executive":["Frontal lobe","Broca's area","Primary motor cortex","Premotor cortex","Prefrontal cortex","Orbitofrontal cortex"],
+  "Memory + Emotion + Regulation":["Hippocampus","Amygdala","Thalamus","Hypothalamus","Pituitary gland","Reward circuitry"],
+  "Movement + Brainstem":["Basal ganglia","Substantia nigra","Cerebellum","Midbrain","Pons","Medulla"],
+  "Sensory + Visual + Spatial":["Parietal lobe","Primary somatosensory cortex","Posterior parietal cortex","Occipital lobe","Primary visual cortex"],
+  "Temporal + Language + Hemispheres":["Temporal lobe","Wernicke's area","Left hemisphere","Right hemisphere","Corpus callosum"]
+};
+const ALL_REGIONS=Object.values(GROUPS).flat();
+
+// Anatomical hierarchy: a specific cortical substructure is also part of its parent lobe.
+// Precision works one way: identifying the substructure includes the parent, but identifying
+// only the parent does not automatically identify the substructure.
+const PARENT_REGION={
+  "Broca's area":"Frontal lobe",
+  "Primary motor cortex":"Frontal lobe",
+  "Premotor cortex":"Frontal lobe",
+  "Prefrontal cortex":"Frontal lobe",
+  "Orbitofrontal cortex":"Frontal lobe",
+  "Primary somatosensory cortex":"Parietal lobe",
+  "Posterior parietal cortex":"Parietal lobe",
+  "Primary visual cortex":"Occipital lobe",
+  "Wernicke's area":"Temporal lobe"
+};
+function expandRegions(regions){
+  const out=new Set(regions||[]);
+  (regions||[]).forEach(r=>{if(PARENT_REGION[r])out.add(PARENT_REGION[r]);});
+  return [...out];
+}
+function hierarchyNote(regions){
+  const pairs=(regions||[]).filter(r=>PARENT_REGION[r]).map(r=>`${r} is within the ${PARENT_REGION[r]}`);
+  return pairs.length?` <b>Anatomical hierarchy:</b> ${pairs.join('; ')}.`:'';
+}
+const DIFFICULTIES={
+  1:{name:"Foundations",value:1,desc:"Mostly one-region cases with useful intact-function clues."},
+  2:{name:"Developing",value:2,desc:"One main region with stronger distractors and overlap."},
+  3:{name:"Systems",value:3,desc:"Several plausible regions; tests separate systems."},
+  4:{name:"Advanced",value:4,desc:"Two-region or multi-system cases with misleading clues."},
+  5:{name:"Challenge",value:5,desc:"Level 3-style cases requiring preserved-function and rule-out reasoning."}
+};
+
+// Each blueprint creates 3 distinct patient variants. 20 blueprints = 60 cases.
+const BLUEPRINTS=[
+{d:1,type:"Language production",correct:["Broca's area"],opens:[
+"A teacher speaks in short, effortful phrases after a neurological event. She clearly understands questions, nods appropriately, and becomes frustrated when she cannot get words out. Her right hand is slightly clumsy, but she follows multi-step directions correctly.",
+"A patient understands a joke and points correctly to named objects, but his spoken answers are slow, halting, and missing connecting words. He can hum a familiar tune and write several meaningful words.",
+"After a sudden neurological change, a patient knows what she wants to say and follows conversation well, yet producing fluent speech is extremely difficult. Her comprehension is much stronger than her output."],tests:[
+["Language comprehension","Ask the patient to follow a new three-step spoken direction.","The patient completes all three steps correctly without demonstration."],
+["Speech production","Ask for a detailed description of a familiar activity.","Speech remains slow and effortful; key ideas are present but sentences are difficult to produce."],
+["Object recognition","Show common objects and ask the patient to point to the named item.","The patient points accurately to each object."],
+["Hand movement","Ask for rapid finger tapping with each hand.","The right hand is mildly slower, but the major problem remains speech production."]],model:"The strongest localization is Broca's area because spoken language production is severely impaired while comprehension and object recognition remain relatively intact. The mild right-hand weakness is compatible with nearby left frontal motor involvement, but it does not explain the central language pattern."},
+{d:1,type:"Language comprehension",correct:["Wernicke's area"],opens:[
+"A patient speaks easily and at normal speed, but the sentences contain inappropriate words and do not answer the question being asked. He appears confused by simple spoken directions.",
+"A woman produces long, fluent sentences that sound grammatically smooth but carry little clear meaning. When asked to place a pencil under a book, she does something unrelated.",
+"Speech is fluent and effortless, yet the patient repeatedly misunderstands spoken questions and responds with unrelated phrases. Hearing appears intact."],tests:[
+["Comprehension","Give a simple two-step spoken instruction.","The patient hears the instruction but carries out the wrong actions."],
+["Speech fluency","Ask the patient to tell a short story.","Speech is fluent and well paced but contains incorrect words and poor meaning."],
+["Hearing check","Present soft tones to each ear.","The patient detects the tones normally."],
+["Reading meaning","Show a short written sentence and ask what it means.","Understanding of the sentence is also poor."],],model:"Wernicke's area best explains fluent but poorly meaningful speech together with impaired language comprehension. Normal hearing rules out a basic auditory problem; the deficit concerns interpreting language rather than detecting sound."},
+{d:1,type:"Visual processing",correct:["Primary visual cortex"],opens:[
+"Following a neurological event, a patient reports that part of the visual world is missing even though the eyes respond normally to light. Touch, hearing, and speech are intact.",
+"A patient can hear, move, and feel normally but repeatedly fails to notice visual information in a consistent portion of the visual field. Eye movements and pupils appear normal.",
+"A patient says a section of space looks blank. The eyes themselves appear healthy, and she can identify objects presented in the unaffected visual area."],tests:[
+["Visual field test","Present moving fingers in different parts of the visual field.","The same portion of the visual field is consistently missed."],
+["Touch identification","Place a familiar object in the patient's hand with eyes closed.","The object is identified immediately by touch."],
+["Eye response","Check pupil response and ability to move the eyes toward a target.","Pupil response and eye movements are intact."],
+["Object naming","Show an object in the intact part of the visual field.","The patient names it correctly."],],model:"Primary visual cortex is the best explanation because visual information is not being processed normally despite intact eye responses and preserved recognition when information reaches functioning visual cortex. Other sensory systems remain intact."},
+{d:1,type:"Body sensation",correct:["Primary somatosensory cortex"],opens:[
+"A patient can move the left arm normally but has difficulty detecting light touch and accurately reporting where the left hand is positioned when the eyes are closed.",
+"Strength is normal, yet a patient often does not notice touch on one side of the body and cannot reliably tell whether a finger was moved up or down with eyes closed.",
+"A patient reaches and grips normally but reports that pressure and body-position signals from one side feel weak or unclear."],tests:[
+["Light touch","Touch matching locations on both arms while the patient's eyes are closed.","Touch is consistently less accurately detected on the affected side."],
+["Strength","Ask the patient to push and pull against resistance.","Strength is normal on both sides."],
+["Joint position","Move a finger slightly up or down with eyes closed.","The patient frequently misidentifies the direction on the affected side."],
+["Vision","Ask the patient to identify objects visually.","Visual recognition is normal."],],model:"Primary somatosensory cortex best explains impaired touch and body-position processing with preserved voluntary strength. The pattern separates a sensory-processing deficit from a motor-production problem."},
+{d:1,type:"Motor production",correct:["Primary motor cortex"],opens:[
+"A patient knows exactly how to perform a familiar action but cannot generate normal voluntary movement on one side of the body. Sensation on that side is much better preserved.",
+"After a neurological event, one arm is weak during intentional movement even though the patient understands the task and can accurately describe where the arm is being touched.",
+"A patient can plan a sequence and understands every instruction, but voluntary movement of the opposite side is markedly reduced."],tests:[
+["Strength","Ask the patient to push against resistance with both arms.","Voluntary force is clearly reduced on one side."],
+["Touch","Test light touch with eyes closed.","Touch detection is largely intact."],
+["Action planning","Ask the patient to explain the steps of making a sandwich.","The patient gives an organized and accurate sequence."],
+["Speech comprehension","Give a complex spoken instruction.","The patient understands it correctly."],],model:"Primary motor cortex is most strongly supported because voluntary movement is impaired while sensation, comprehension, and action planning remain relatively intact. The preserved functions help separate motor production from parietal, language, and executive explanations."},
+
+{d:2,type:"New memory formation",correct:["Hippocampus"],opens:[
+"A patient converses normally and recalls childhood events, but repeatedly asks why he is in the clinic even after the answer has been explained. He can hold a phone number in mind long enough to repeat it.",
+"A woman remembers long-established facts and follows a conversation well, yet people she met twenty minutes earlier feel completely unfamiliar. Her language and basic reasoning remain strong.",
+"A patient can work through a puzzle and discuss it intelligently, but later insists he has never seen the puzzle before. Older memories remain much better preserved."],tests:[
+["Delayed word recall","Teach five words, distract the patient, then test after ten minutes.","Immediate recall is strong, but delayed free recall is near zero."],
+["Working memory","Ask the patient to repeat and reorder a short number sequence.","Performance is within a normal range."],
+["Procedural learning","Repeat a simple mirror-tracing task across several trials.","Performance gradually improves even though the patient does not remember practicing."],
+["Language comprehension","Give a new three-step spoken direction.","The patient follows it correctly in the moment."],],model:"The hippocampus best explains the severe failure to form new explicit memories. Working memory, language, and procedural improvement remain much stronger, showing that the problem is not a general loss of intelligence or all forms of memory."},
+{d:2,type:"Threat processing",correct:["Amygdala"],opens:[
+"A patient remembers dangerous events accurately and can describe threatening scenes, but shows unusually weak fear responses to many external threats and has difficulty recognizing fear in faces.",
+"A woman can identify people and remember emotional events but often misreads fearful expressions and approaches situations that most people would find threatening.",
+"A patient recalls what happened during a frightening event but shows little normal avoidance of cues associated with that event. Other emotions remain easier to identify."],tests:[
+["Fear-face recognition","Show faces expressing several emotions.","Fear is identified much less accurately than happiness, anger, or sadness."],
+["Event memory","Ask for details of a recent threatening event.","The patient recalls the event accurately."],
+["External threat response","Present a safe but startling threat cue.","The usual fear response is unusually weak."],
+["Internal alarm","Use a non-dangerous bodily arousal task such as brief controlled breath holding.","The patient still reports strong internal discomfort and alarm."],],model:"Amygdala involvement is best supported because threat recognition and learning from external fear cues are unusually weak while explicit memory remains intact. Preserved internal alarm responses also show why the amygdala should not be reduced to a simple 'fear center.'"},
+{d:2,type:"Movement coordination",correct:["Cerebellum"],opens:[
+"A patient can generate normal strength and begin movements without hesitation, but reaching is poorly timed and often overshoots the target. Walking becomes especially unstable when rapid adjustments are required.",
+"Strength is intact, yet a patient's movements are shaky, poorly timed, and inaccurate. He starts moving easily but struggles with balance and precision.",
+"A patient can initiate every requested movement but has difficulty coordinating its timing and direction. Repeated practice does not quickly smooth the movement."],tests:[
+["Finger-to-target","Ask the patient to touch their nose and then a small target repeatedly.","Movements begin promptly but repeatedly overshoot and require corrections."],
+["Strength","Test force against resistance.","Strength is normal."],
+["Movement initiation","Ask the patient to begin walking on command several times.","Movement starts promptly without freezing."],
+["Heel-to-toe walk","Ask for a narrow heel-to-toe walk.","Balance becomes markedly unstable."],],model:"The cerebellum best explains poor timing, precision, and balance despite normal strength and normal movement initiation. Preserved initiation helps rule against basal-ganglia explanations, while preserved strength argues against primary motor cortex damage."},
+{d:2,type:"Movement initiation",correct:["Basal ganglia"],opens:[
+"A patient has enough strength to move and can coordinate a movement once it is underway, but starting actions is slow and everyday movements have become less automatic.",
+"A patient describes feeling 'stuck' before beginning familiar movements. Once started, the action can be completed with reasonable accuracy.",
+"Voluntary movement is possible, but initiating and smoothly switching between movements is unusually difficult. Balance is much better than the slowness would suggest."],tests:[
+["Start-stop walking","Ask the patient to start and stop walking repeatedly on command.","The largest difficulty occurs when initiating and switching movement states."],
+["Strength","Test force against resistance.","Strength is near normal."],
+["Coordination","Ask for a slow finger-to-target movement.","The movement is reasonably accurate once it begins."],
+["Habit sequence","Ask the patient to perform a familiar automatic hand sequence.","The sequence is slow and requires unusual conscious effort."],],model:"Basal ganglia involvement best explains difficulty selecting, initiating, and automating movement despite preserved strength and relatively good coordination once movement is underway."},
+{d:2,type:"Homeostasis",correct:["Hypothalamus"],opens:[
+"A patient has repeated episodes of abnormal body temperature, disrupted sleep, unusual thirst, and unstable hunger signals. Basic sensation, language, and voluntary movement are intact.",
+"A patient begins sleeping at irregular times, struggles to regulate body temperature, and reports extreme shifts in hunger and thirst despite normal digestion and movement.",
+"Several internal body-balance functions change together: sleep timing, thirst, appetite, and temperature regulation. The patient remains cognitively clear."],tests:[
+["Temperature regulation","Monitor body temperature during a mild environmental change.","Regulation is unusually unstable compared with the environmental demand."],
+["Thirst response","Compare fluid need with recent intake and hydration cues.","Thirst signaling is poorly matched to the body's actual needs."],
+["Language","Ask the patient to explain a complex paragraph.","Language comprehension and reasoning are intact."],
+["Motor coordination","Use a brief balance and reaching task.","Movement coordination is normal."],],model:"The hypothalamus is the strongest localization because several homeostatic functions—temperature, sleep, hunger, and thirst—are disrupted together while cortical language and movement functions remain intact."},
+
+{d:3,type:"Executive control vs reward",correct:["Prefrontal cortex"],opens:[
+"A patient can explain rules and accurately predict that a risky choice will probably cause trouble, yet repeatedly makes the same impulsive choice moments later. Memory for prior outcomes is intact.",
+"A student-sized patient performs well on knowledge questions and remembers consequences from earlier trials, but cannot consistently inhibit an immediately tempting response even after explaining why it is a bad idea.",
+"A patient knows the social rule, remembers breaking it, and can describe the likely consequence, but still struggles to stop the behavior in the moment."],tests:[
+["Rule switching","Ask the patient to change from one sorting rule to another when the signal changes.","The patient perseverates on the old rule even after explaining the new one."],
+["Delayed recall","Test memory for outcomes from earlier choices.","The patient remembers the outcomes accurately."],
+["Reward delay","Offer a smaller immediate reward versus a larger delayed reward.","The patient repeatedly chooses the immediate option despite articulating the long-term cost."],
+["Language comprehension","Give complex spoken instructions.","Comprehension is normal."],],model:"Prefrontal cortex dysfunction best explains impaired inhibition, flexible control, and behavior regulation. The patient knows the rules and remembers consequences, so hippocampal memory failure is not the main problem. Reward sensitivity may influence choices, but the central deficit is controlling behavior in light of known goals."},
+{d:3,type:"Outcome evaluation",correct:["Orbitofrontal cortex"],opens:[
+"A patient plans ordinary tasks adequately and remembers past events, but repeatedly makes socially inappropriate choices and fails to adjust when reward values or consequences change.",
+"A patient can organize a multi-step task and inhibit simple motor responses, yet keeps choosing an option that used to be rewarding even after it becomes costly.",
+"General planning is fairly strong, but judgment becomes especially poor when choices require comparing changing rewards, punishments, or social consequences."],tests:[
+["Reversal learning","Make one choice rewarding, then reverse which choice pays off.","The patient continues choosing the formerly rewarding option long after the contingency changes."],
+["Planning","Ask the patient to organize errands in an efficient order.","The plan is logical and organized."],
+["Delayed memory","Ask about outcomes from the previous trials.","The patient remembers which choices led to which outcomes."],
+["Simple inhibition","Use a basic stop/go task.","Basic response inhibition is only mildly impaired compared with the judgment problem."],],model:"Orbitofrontal cortex involvement is best supported because the major deficit appears when evaluating changing rewards and consequences, especially in social decision-making. Memory and broad planning remain relatively strong, helping separate this from hippocampal or more global prefrontal impairment."},
+{d:3,type:"Sensory routing",correct:["Thalamus"],opens:[
+"A patient reports that several kinds of sensory information sometimes fail to reach awareness clearly even though the eyes, ears, and skin receptors appear functional. Smell is much less affected.",
+"Touch, visual, and auditory signals are inconsistently available to conscious processing, but peripheral sensory organs test normally. The pattern crosses more than one sensory system.",
+"A patient has difficulty reliably processing incoming visual, auditory, and body-sensation signals despite intact receptors. Smell remains relatively normal."],tests:[
+["Cross-sensory check","Compare simple visual, auditory, touch, and smell detection.","Visual, auditory, and touch processing are inconsistently degraded, while smell is relatively preserved."],
+["Skin receptor check","Apply touch directly to several locations.","Peripheral detection responses are present even when conscious reporting is inconsistent."],
+["Visual object test","Present large high-contrast objects repeatedly.","Performance varies rather than showing a stable visual-field loss."],
+["Language","Ask the patient to interpret written information once it is clearly perceived.","Meaning is understood normally when the input reaches awareness."],],model:"The thalamus is the best explanation because multiple sensory routes are affected together while peripheral receptors remain functional and smell is relatively spared. A single cortical sensory area would not easily explain the cross-modal pattern."},
+{d:3,type:"Movement planning",correct:["Premotor cortex"],opens:[
+"A patient has normal strength and can execute single simple movements, but struggles to organize a familiar multi-step action into the correct sequence. He can verbally describe what should happen.",
+"The muscles work and isolated movements are accurate, yet assembling them into a practiced action sequence becomes awkward and disorganized.",
+"A patient understands the goal and has normal basic movement strength, but complex hand-action sequences are difficult to plan before execution."],tests:[
+["Gesture sequence","Ask for a three-part learned hand sequence.","Individual movements are possible, but the sequence order repeatedly breaks down."],
+["Strength","Test force against resistance.","Strength is normal."],
+["Verbal planning","Ask the patient to explain the steps before moving.","The verbal plan is accurate."],
+["Single movement","Ask for one isolated finger movement.","The movement is performed normally."],],model:"Premotor cortex damage best explains failure to organize complex movement sequences despite preserved strength, comprehension, and ability to produce isolated movements. The deficit is planning the action pattern rather than generating muscle force."},
+{d:3,type:"Spatial integration",correct:["Posterior parietal cortex"],opens:[
+"A patient can see objects and move the arm with normal strength, but repeatedly reaches to the wrong location and misjudges where the body is positioned in space.",
+"Vision and sensation are present, yet a patient struggles to integrate them into an accurate map of where objects are relative to the body.",
+"A patient identifies an object visually and feels touch normally, but actions guided by spatial location are inaccurate and one side of space receives much less attention."],tests:[
+["Visually guided reach","Ask the patient to reach toward targets in different locations.","Reaches are misdirected even though the target is seen and the arm can move."],
+["Basic vision","Ask the patient to identify high-contrast objects.","Objects are recognized correctly."],
+["Touch detection","Test light touch on both hands.","Basic touch detection is largely intact."],
+["Line midpoint","Ask the patient to mark the center of several horizontal lines.","Marks are consistently shifted toward one side."],],model:"Posterior parietal cortex involvement best explains the failure to integrate vision, body position, and spatial attention. Basic vision, touch, and motor strength remain available, so the core problem is spatial integration rather than a primary sensory or motor deficit."},
+
+{d:4,type:"Dopamine-supported movement",correct:["Substantia nigra","Basal ganglia"],opens:[
+"A patient develops slowed movement, rigidity, a resting tremor, and difficulty getting started. Strength is reasonably preserved, and once a movement is underway it can be directed toward the intended target.",
+"Movements become smaller and slower over time. The patient has trouble initiating walking, shows rigidity, and develops a tremor at rest, but basic sensation remains normal.",
+"A patient reports that everyday actions no longer start automatically. Examination shows slowed movement, rigidity, and a resting tremor without major weakness."],tests:[
+["Movement initiation","Ask the patient to begin walking, stop, and begin again.","Starting is delayed and movement amplitude is reduced."],
+["Rest vs action tremor","Observe the hand at rest and during a reaching movement.","Tremor is most visible at rest and decreases somewhat during goal-directed action."],
+["Strength","Test force against resistance.","Strength is much better preserved than movement speed and initiation."],
+["Coordination","Use a slow target-reaching task.","Accuracy is better than the severe slowness and initiation difficulty would predict."],],model:"The combined pattern points to substantia nigra involvement affecting basal-ganglia movement circuits. Slowed initiation, rigidity, and resting tremor fit reduced dopaminergic support, while preserved strength and relatively better coordination help rule out primary motor cortex and cerebellar explanations."},
+{d:4,type:"Hypothalamus–pituitary system",correct:["Hypothalamus","Pituitary gland"],opens:[
+"A patient develops disrupted sleep, unstable body temperature, abnormal thirst, and laboratory evidence that several hormone-controlled body systems are changing together. Language and movement remain intact.",
+"Internal regulation becomes disorganized: sleep timing, appetite, temperature, and endocrine outputs all shift. No single peripheral gland explains the full pattern.",
+"A patient has both homeostatic symptoms and broad hormone-output changes affecting multiple body systems, suggesting a problem high in the regulatory chain."],tests:[
+["Homeostasis pattern","Track sleep, temperature, hunger, and thirst across a day.","Several homeostatic signals are poorly coordinated."],
+["Hormone pattern","Compare multiple pituitary-controlled hormone outputs.","Several downstream hormone systems are abnormal rather than only one peripheral gland."],
+["Language","Give a comprehension and naming task.","Language is normal."],
+["Movement","Use strength and coordination tasks.","Movement is normal."],],model:"Both hypothalamus and pituitary gland are implicated because homeostatic regulation is disrupted together with broad downstream endocrine output. The hypothalamus helps organize body balance and controls the pituitary, while the pituitary carries hormonal signals to other glands."},
+{d:4,type:"Interhemispheric transfer",correct:["Corpus callosum","Left hemisphere","Right hemisphere"],opens:[
+"A patient can name an object presented to the right visual field but cannot verbally name the same object when it appears only in the left visual field. With the left hand, however, the patient can select the matching object without speaking.",
+"When information reaches the right hemisphere alone, the patient can act on it with the left hand but struggles to report it verbally. Information presented to the opposite visual field is named easily.",
+"A split-field task reveals a striking disconnect: one hemisphere can guide a hand response to information that cannot be easily transferred to the hemisphere with stronger language access."],tests:[
+["Right visual field naming","Flash a word only to the right visual field and ask for verbal report.","The patient names it correctly."],
+["Left visual field naming","Flash a word only to the left visual field and ask for verbal report.","The patient cannot reliably say the word."],
+["Left-hand selection","After left-visual-field presentation, ask the left hand to choose the matching object.","The left hand selects the correct object despite failure to name it."],
+["Ordinary conversation","Talk with the patient without restricting visual fields.","Conversation is mostly normal."],],model:"The pattern requires the corpus callosum plus hemispheric lateralization. Left-visual-field information reaches the right hemisphere and can guide the left hand, but cannot easily cross the disconnected corpus callosum to left-lateralized language systems. Right-visual-field information reaches the left hemisphere and can be named."},
+{d:4,type:"Brainstem survival control",correct:["Medulla","Pons"],opens:[
+"A patient develops irregular breathing, unstable blood pressure, swallowing difficulty, and severe sleep/arousal disruption. Voluntary limb strength is less affected than the automatic survival functions.",
+"Following injury near the lower brainstem, breathing rhythm and cardiovascular regulation become unstable. Sleep-wake regulation is also disrupted and swallowing is unsafe.",
+"A patient remains able to understand language and move the limbs, but automatic breathing, heart-rate regulation, swallowing, and arousal are all compromised."],tests:[
+["Automatic breathing","Observe breathing during quiet rest and sleep transition.","Breathing rhythm becomes irregular without conscious control."],
+["Swallow reflex","Use a supervised clinical swallow screening.","Protective swallowing is impaired."],
+["Sleep-arousal","Monitor transitions between wakefulness and sleep.","Arousal regulation is markedly abnormal."],
+["Voluntary strength","Test limb strength.","Strength is much better preserved than the automatic survival functions."],],model:"Medulla and pons are both implicated. Medullary dysfunction explains breathing, cardiovascular, and swallowing problems, while pontine involvement helps explain disrupted breathing modulation and sleep/arousal. Preserved cortical language and limb strength make a broad cortical lesion less likely."},
+{d:4,type:"Visual-spatial system",correct:["Right hemisphere","Posterior parietal cortex"],opens:[
+"A patient can identify objects and move both arms, but consistently ignores important information on the left side of space and misjudges spatial relationships there. Speech remains fluent.",
+"A patient eats food only from the right side of a plate and copies only the right half of a drawing despite having usable vision in both eyes.",
+"Basic visual detection is present, but attention to left space and integration of spatial relationships are severely reduced. Language is relatively preserved."],tests:[
+["Cancellation task","Ask the patient to mark targets spread across a page.","Targets on the left side are frequently omitted."],
+["Visual field detection","Present bright moving stimuli and explicitly cue attention.","The patient can sometimes detect left-side stimuli when strongly cued, arguing against complete blindness."],
+["Object naming","Show single objects near the center.","Objects are named correctly."],
+["Line midpoint","Ask for the center of horizontal lines.","The patient marks the midpoint too far to the right."],],model:"Right-hemisphere posterior parietal dysfunction best explains left-sided spatial neglect and distorted spatial integration. The patient can detect and name objects, so the problem is not simply loss of visual input; it is attention to and organization of space."},
+
+{d:5,type:"Memory + emotional salience",correct:["Hippocampus","Amygdala"],opens:[
+"After a medial temporal injury, a patient can hold a conversation and describe old emotional events, but new experiences fade rapidly. At the same time, threatening faces are poorly recognized and new danger cues fail to acquire normal emotional significance.",
+"A patient remembers remote life events but cannot form durable new event memories. Separately, fear recognition and learning from external threat cues are unusually weak, although other emotions are easier to read.",
+"Two changes appear together after injury: new explicit memories do not stick, and external threat cues no longer guide attention and fear learning normally. Language and movement remain strong."],tests:[
+["Delayed memory","Teach a short story and test after a delay.","Immediate understanding is good, but delayed explicit recall is severely impaired."],
+["Fear-face recognition","Ask the patient to identify facial emotions.","Fear is much less accurately identified than several other emotions."],
+["Procedural learning","Repeat a motor-skill task across trials.","Performance improves despite little conscious memory of practicing."],
+["External threat learning","Pair a neutral cue with a safe startling event across trials.","The cue develops much less normal anticipatory emotional response than expected."],],model:"Both hippocampus and amygdala are needed to explain the pattern. Hippocampal damage accounts for severe new explicit-memory failure with preserved procedural learning. Amygdala dysfunction accounts for weak fear recognition and reduced emotional learning from external threat cues. One structure alone does not explain both clusters."},
+{d:5,type:"Executive–reward interaction",correct:["Prefrontal cortex","Reward circuitry","Orbitofrontal cortex"],opens:[
+"A patient knows task rules, remembers previous losses, and can plan ordinary errands. Yet choices become dominated by immediate rewards, the patient fails to adjust when reward values change, and inhibition collapses most strongly in tempting situations.",
+"A patient can explain long-term consequences and recall them later, but repeatedly pursues high-value immediate rewards, fails reversal learning, and struggles to stop behavior once a reward cue appears.",
+"Knowledge and memory are intact, but behavior is pulled toward reward cues. The patient has trouble updating the value of choices and controlling impulses when immediate incentives are present."],tests:[
+["Reward delay","Compare a small immediate reward with a larger delayed reward.","Choices are strongly biased toward immediate reward even after the patient explains the long-term cost."],
+["Reversal learning","Reverse which option is rewarding.","The patient continues selecting the previously rewarding option."],
+["Neutral inhibition","Use a stop/go task with no rewards.","Inhibition is impaired, but less severely than when reward cues are present."],
+["Delayed outcome memory","Ask the patient to recall previous gains and losses.","The patient remembers them accurately."],],model:"The best explanation is a network involving prefrontal cortex, orbitofrontal cortex, and reward circuitry. Memory for consequences is intact, but behavioral control, updating reward value, and resistance to immediate incentives are impaired. The interaction among executive control and reward evaluation explains the full pattern better than a memory disorder."},
+{d:5,type:"Movement system differential",correct:["Cerebellum","Premotor cortex"],opens:[
+"A patient has normal strength and can begin movements, but complex action sequences are poorly organized and, once attempted, become badly timed and inaccurate. Simple isolated movements are much better.",
+"The patient understands a complex movement goal and can move each muscle group, yet struggles both to organize the sequence and to coordinate the timing and precision of the completed action.",
+"A familiar multi-step movement breaks down before and during execution: the sequence order is poor, and the movements that do occur overshoot and lose balance."],tests:[
+["Single movement","Ask for one isolated reach.","The reach begins promptly but shows mild timing error."],
+["Action sequence","Ask for a learned three-step hand routine.","The order is disorganized and the executed movements are poorly timed."],
+["Strength","Test force against resistance.","Strength is normal."],
+["Balance","Ask for heel-to-toe walking.","Balance and precision are clearly impaired."],],model:"Premotor cortex and cerebellum together explain the case. Premotor involvement accounts for poor organization of the action sequence, while cerebellar dysfunction explains the timing, precision, and balance errors during execution. Normal strength and easy movement initiation rule against primary motor cortex and basal-ganglia explanations."},
+{d:5,type:"Arousal + orienting + movement",correct:["Midbrain","Pons"],opens:[
+"After a brainstem injury, a patient has unstable arousal and sleep-wake transitions and shows weak automatic orienting toward sudden sights and sounds. Basic language is intact, but movement becomes less well regulated during changes in arousal.",
+"A patient is difficult to keep consistently alert, sleeps at unusual times, and often fails to automatically turn toward sudden visual or auditory events even when the senses themselves can detect them.",
+"Arousal fluctuates markedly. The patient can hear and see stimuli when directly tested but automatic orienting responses are reduced, and sleep regulation is abnormal."],tests:[
+["Orienting response","Present an unexpected light or sound from the side.","Detection is possible when asked directly, but automatic turning/orienting is unusually weak."],
+["Sleep-arousal","Track transitions between drowsiness and alertness.","Arousal is unstable and sleep timing is markedly disrupted."],
+["Language","Ask the patient to name and explain familiar objects while alert.","Language is intact when arousal is sufficient."],
+["Basic sensory detection","Ask the patient to press a button when hearing a tone or seeing a flash.","Detection is much better than the automatic orienting response."],],model:"Midbrain and pons involvement best explains the combined impairment in automatic orienting, arousal, and sleep regulation. Basic sensory detection and language can remain intact, showing that the problem is not primarily in visual, auditory, or language cortex."},
+{d:5,type:"Sensory-spatial differential",correct:["Thalamus","Posterior parietal cortex"],opens:[
+"A patient has inconsistent access to touch and visual information and, when information does reach awareness, still has difficulty integrating it into an accurate spatial map. Peripheral receptors and basic movement are intact.",
+"Sensory information is sometimes weak or unreliable across more than one modality, and spatially guided behavior remains inaccurate even on trials when the stimulus is consciously detected.",
+"The patient shows both cross-modal sensory-routing problems and a separate failure to organize detected information into stable spatial relationships."],tests:[
+["Cross-modal detection","Compare visual, touch, auditory, and smell detection.","Visual, touch, and auditory access is inconsistent while smell is relatively preserved."],
+["Spatial reach on detected trials","Use only trials where the patient confirms seeing the target.","Even on detected trials, reaches are spatially misdirected."],
+["Peripheral receptor check","Confirm basic skin and eye responses.","Peripheral responses are present."],
+["Line midpoint","Ask for the center of several lines after confirming visibility.","Midpoints are systematically misplaced."],],model:"Two levels of processing are disrupted. Thalamic involvement explains inconsistent routing of several sensory modalities with relative sparing of smell, while posterior parietal dysfunction explains persistent spatial-integration errors even when the stimulus is successfully detected."}
+];
+
+const CASE_CONTEXT={
+"Language production":"Family members report that the change is most noticeable during spontaneous conversation, not when the patient is simply listening. The patient becomes visibly frustrated and often gestures or points successfully when speech fails. Reading simple directions and recognizing familiar people remain much stronger than spoken output. The team wants to determine whether this is primarily a language-production problem or part of a broader frontal/motor problem.",
+"Language comprehension":"The patient's family first noticed the problem because responses sounded confident but did not match what had just been said. The patient seems socially engaged and hears people speaking, yet conversational repair does not improve the misunderstanding. Motor behavior is organized and there is no obvious weakness. The challenge is deciding whether the breakdown is in hearing, language meaning, attention, or a broader temporal-system problem.",
+"Visual processing":"The patient sometimes compensates by turning the head or scanning repeatedly, suggesting awareness that something about vision is unreliable. There is no eye pain, and basic eye movements appear coordinated. In conversation the patient follows spoken information normally and can describe objects that are successfully detected. The question is whether the difficulty reflects early cortical visual processing or a later spatial-attention problem.",
+"Body sensation":"The patient has begun watching the affected limb during tasks because vision helps compensate for information that is less reliable with the eyes closed. Gross strength appears relatively preserved, and the limb does not simply collapse during movement. Family members describe occasional awkward placement of the hand even though the patient can intentionally move it. The case could involve primary sensation, spatial integration, or a nearby parietal process.",
+"Motor production":"The patient can explain what an action requires and appears motivated to perform it, but one side contributes less force during intentional movement. Family members report that the weakness began suddenly rather than gradually. The patient still notices touch on the affected side and can recognize where the limb is positioned better than would be expected in a major sensory loss. The central problem could be producing movement, planning it, or regulating a deeper movement circuit.",
+"New memory formation":"During the interview the patient is personable and can reason through questions in the moment. Long-established facts, vocabulary, and many older autobiographical memories are available, but the same recent questions recur. The patient occasionally develops a sense of familiarity without being able to report the event that created it. The important distinction is among new explicit memory, working memory, attention, and procedural learning.",
+"Threat processing":"The patient's general intelligence, speech, and ordinary memory appear intact. Family members are more concerned that dangerous situations no longer guide attention or avoidance in the same way, although the patient is not emotionally flat in every circumstance. Some bodily reactions still occur under intense internal stress. The case requires separating emotional significance and learned threat responses from a global inability to experience emotion.",
+"Movement coordination":"The patient can generate enough strength to begin actions and understands the goal, but performance becomes less accurate as timing demands increase. The problem is especially noticeable when direction changes quickly or when balance and precision must be combined. Simple single-joint movements can look much better than whole-body or multi-step actions. The differential includes coordination, movement planning, movement initiation, and primary motor output.",
+"Movement initiation":"The patient describes knowing exactly what movement is intended but feeling as though the body is slow to get started. Once moving, actions may remain small or less automatic, and switching between actions can be difficult. Strength testing does not fully explain the slowness. The case could involve basal-ganglia function, dopamine support, motor cortex, or cerebellar coordination.",
+"Homeostasis":"The symptoms do not belong to one obvious sensory or motor system. Instead, several regulated body states have drifted together over time while language and ordinary reasoning remain fairly clear. Family members notice that routines around sleep, eating, drinking, and temperature no longer match the environment as well as before. The key is deciding whether the disturbance is central regulation, downstream hormone output, or a nonspecific stress response.",
+"Executive control vs reward":"The patient can state rules, remember recent consequences, and often predict what would be the sensible choice. The breakdown appears when a tempting option is immediately available: behavior becomes impulsive even though the person can later explain why it was a poor decision. Family members describe a change in judgment rather than a loss of factual knowledge. More than one frontal/reward structure could plausibly contribute.",
+"Outcome evaluation":"The patient's general planning is relatively organized until choices require comparing uncertain rewards, losses, or changing social consequences. The patient may repeat a decision after the payoff structure has shifted, even while accurately describing the new rule. Memory for what happened is not the main problem. The case requires distinguishing broad executive control from the evaluation of changing outcomes and reward value.",
+"Sensory routing":"The patient reports that several kinds of incoming information sometimes fail to become clearly available, yet no single peripheral sense appears completely absent. The pattern is inconsistent with one damaged eye, ear, or patch of skin. When information does arrive, some cortical processing can still be demonstrated. A cross-modal routing problem must be distinguished from several separate cortical sensory injuries.",
+"Movement planning":"The patient has adequate strength and can perform isolated movements on command, but familiar action sequences become disorganized before they are fully executed. Errors increase when the task requires arranging several movements in the correct order. The patient may recognize that the sequence is wrong without being able to organize it efficiently. This creates overlap among premotor, prefrontal, primary motor, and cerebellar explanations.",
+"Spatial integration":"The patient detects many individual sights and touches but has difficulty combining them into a reliable map of body and surrounding space. Reaching errors are not explained by simple weakness. One side of space may receive less attention even though basic visual detection can be demonstrated under some conditions. The case sits at the boundary between sensation, vision, and higher-order parietal integration.",
+"Dopamine-supported movement":"The family reports a gradual change in how automatic movement looks: actions are smaller, slower, and require more conscious effort. The patient can still generate force when pushed to do so, but spontaneous movement is reduced and repetitive actions lose speed. A resting tremor may appear even though sensation is intact. The question is whether the pattern points to basal ganglia generally or to the dopamine-producing support system within that circuit.",
+"Hypothalamus–pituitary system":"The patient presents with changes in body regulation plus evidence that several hormone-controlled systems are no longer behaving normally. No single peripheral endocrine gland explains the whole pattern. Some symptoms look like a central homeostasis problem, while others look like downstream endocrine consequences. The task is to reason through the hypothalamus-to-pituitary relationship rather than treating the two structures as interchangeable.",
+"Interhemispheric transfer":"Most ordinary conversation and movement seem normal, so the deficit is easy to miss until information is restricted to one side of the visual field or one hand. Under those conditions, what one hemisphere can act on is not always available to the other hemisphere's stronger language systems. The patient does not have a simple global language or visual deficit. The case depends on lateralization, contralateral processing, and communication between hemispheres.",
+"Brainstem survival control":"The most concerning symptoms are automatic rather than voluntary: breathing rhythm, cardiovascular regulation, swallowing, arousal, or protective reflexes fluctuate despite the patient's ability to understand some commands. Not every brainstem function is equally affected. Higher cortical abilities may appear surprisingly intact during alert periods. The challenge is localizing within a system that supports basic survival and communication with the rest of the brain.",
+"Visual-spatial system":"The patient can sometimes identify an object once attention is directed to it, yet navigating and organizing the broader visual scene is unreliable. The deficit is especially obvious when several objects compete for attention or when the patient must act on spatial relationships. This does not look like simple blindness. The differential includes occipital visual processing, posterior parietal integration, right-hemisphere spatial attention, and primary sensation.",
+"Memory + emotional salience":"Two changes emerged together: recent events do not become durable explicit memories, and emotionally important cues no longer guide attention or learning in the usual way. Speech, basic perception, and voluntary movement are comparatively strong. The patient may react to some intense internal bodily signals despite weak learning from external threats. A single broad 'limbic' label is not enough; the pattern must be separated into specific structures.",
+"Executive–reward interaction":"The patient remembers outcomes and understands rules but is disproportionately captured by immediate incentives. Choices improve when tempting cues are removed and deteriorate when rewards are visible or uncertain. The person can often explain afterward what should have been done. The case asks whether the central problem is general executive control, reward valuation, or the interaction between the two.",
+"Movement system differential":"A familiar action contains more than one kind of movement error. Some parts are poorly organized before they begin, while the movements that do occur may be inaccurate, poorly timed, or unstable. Strength alone does not account for the pattern. The student must decide whether one structure can explain the case or whether planning and coordination systems are both involved.",
+"Arousal + orienting + movement":"The patient's level of alertness varies across the day, and automatic turning toward sudden sights or sounds is weaker than expected. When fully awake, basic sensation can be demonstrated and voluntary commands can sometimes be followed. Movement is not simply paralyzed, but initiation and automatic orientation are abnormal. The pattern overlaps brainstem arousal, midbrain orienting, and movement circuitry.",
+"Sensory-spatial differential":"The patient has difficulty with more than one incoming sensory stream, but even successfully detected information may not be organized into a stable representation of space. Some errors disappear when attention is strongly cued; others persist across modalities. Peripheral receptors remain functional. The case may therefore require both a routing explanation and a higher-order spatial-integration explanation."
+};
+
+const REGION_FUNCTIONS={
+  "Frontal lobe":"supports planning, voluntary behavior, movement, and language-related functions in the frontal cortex",
+  "Broca's area":"supports speech production; damage typically makes speech slow and effortful while comprehension can remain much stronger",
+  "Primary motor cortex":"drives voluntary skeletal movement, with each hemisphere mainly controlling the opposite side of the body",
+  "Premotor cortex":"helps organize and prepare learned movement sequences before primary motor cortex carries them out",
+  "Prefrontal cortex":"supports planning, judgment, working memory, inhibition, and flexible goal-directed behavior",
+  "Orbitofrontal cortex":"helps evaluate reward and consequences and restrain behavior when choices are socially or emotionally inappropriate",
+  "Hippocampus":"is critical for forming new explicit memories and linking experiences with context",
+  "Amygdala":"helps evaluate emotional significance, especially threat, and supports emotional learning",
+  "Thalamus":"routes most incoming sensory information toward appropriate cortical areas and helps regulate alertness",
+  "Hypothalamus":"regulates homeostasis and motivated behavior, including hunger, thirst, temperature, stress, and autonomic responses",
+  "Pituitary gland":"releases hormones under hypothalamic control and links brain regulation to the endocrine system",
+  "Reward circuitry":"uses dopamine-related signaling to support motivation, reinforcement, wanting, and learning from rewards",
+  "Basal ganglia":"help initiate and regulate smooth voluntary movement and support habits and action selection",
+  "Substantia nigra":"provides dopamine important for basal-ganglia movement circuits; damage can impair movement initiation and smoothness",
+  "Cerebellum":"coordinates balance, timing, precision, and error correction during movement",
+  "Midbrain":"supports orienting, eye-movement and sensorimotor functions and contributes to arousal within the brainstem",
+  "Pons":"helps regulate sleep, arousal, breathing rhythm, and communication between major brain regions",
+  "Medulla":"controls vital automatic functions such as breathing, heart rate, blood pressure, swallowing, and protective reflexes",
+  "Parietal lobe":"processes body sensation and contributes to spatial attention and integration",
+  "Primary somatosensory cortex":"processes touch and body-position information from the opposite side of the body",
+  "Posterior parietal cortex":"integrates sensory information into spatial awareness and helps direct attention through space",
+  "Occipital lobe":"is the major cortical region for visual processing",
+  "Primary visual cortex":"receives and processes basic visual information arriving from the eyes through visual pathways",
+  "Temporal lobe":"supports auditory processing, language comprehension, memory-related functions, and object recognition",
+  "Wernicke's area":"supports comprehension of meaningful language; damage can leave speech fluent but poorly meaningful",
+  "Left hemisphere":"is usually dominant for language and controls movement and sensation mainly on the right side",
+  "Right hemisphere":"is especially important for broad spatial attention and controls movement and sensation mainly on the left side",
+  "Corpus callosum":"allows the two cerebral hemispheres to exchange information"
+};
+const PROGRESS_KEY='neuroCaseLabProgress_v060';
+const RECENT_KEY='neuroCaseLabRecent_v060';
+function loadJSON(key,fallback){try{return JSON.parse(localStorage.getItem(key))||fallback}catch(e){return fallback}}
+function saveJSON(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch(e){}}
+function rankForXP(xp){if(xp>=3000)return {name:'Neuro Specialist',floor:3000,next:4500};if(xp>=1800)return {name:'Neurologist',floor:1800,next:3000};if(xp>=900)return {name:'Neuro Resident',floor:900,next:1800};if(xp>=300)return {name:'Neuro Trainee',floor:300,next:900};return {name:'Neuro Intern',floor:0,next:300}}
+function getProgress(){return Object.assign({xp:0,cases:0,streak:0,best:0},loadJSON(PROGRESS_KEY,{}))}
+function renderProgress(){const p=getProgress(),r=rankForXP(p.xp),pct=Math.max(0,Math.min(100,((p.xp-r.floor)/(r.next-r.floor))*100));if($('startRank'))$('startRank').textContent=r.name;if($('startXP'))$('startXP').textContent=`${p.xp} XP`;if($('startCases'))$('startCases').textContent=p.cases;if($('startStreak'))$('startStreak').textContent=p.streak;if($('startBest'))$('startBest').textContent=p.best;if($('startProgressFill'))$('startProgressFill').style.width=pct+'%'}
+function awardProgress(score,max,exact){const p=getProgress();const accuracy=max?score/max:0;const base=Math.round(60+140*accuracy);const efficiency=Math.max(0,40-(usedTests.length*8));const xpGain=base+efficiency;p.xp+=xpGain;p.cases+=1;p.streak=exact?p.streak+1:0;p.best=Math.max(p.best,p.streak);saveJSON(PROGRESS_KEY,p);const r=rankForXP(p.xp);return {xpGain,p,rank:r.name}}
+
+const CASES=[]; BLUEPRINTS.forEach((b,bi)=>b.opens.forEach((opening,vi)=>CASES.push({
+ id:`N${String(bi*3+vi+1).padStart(3,'0')}`,difficulty:b.d,type:b.type,opening:opening+"\n\n"+(CASE_CONTEXT[b.type]||""),correct:expandRegions(b.correct),primaryCorrect:[...b.correct],tests:b.tests,model:b.model,variant:vi+1
+})));
+
+let chosenDifficulty=null,current=null,stage=0,history=[],usedTests=[],currentTest=null,selectedByStage=[[]],reasonByStage=[""],firstSeen={};
+const $=id=>document.getElementById(id);
+
+function safeBegin(e){
+ if(e&&e.preventDefault)e.preventDefault();
+ const status=document.getElementById('startStatus');
+ try{
+   begin();
+ }catch(err){
+   console.error(err);
+   if(status){
+     status.textContent='The case could not start: '+(err&&err.message?err.message:'unknown error');
+     status.style.color='#8b1e1e';
+     status.style.fontWeight='700';
+   }
+ }
+ return false;
+}
+
+function syncDifficulty(){
+ const picked=document.querySelector('input[name="difficulty"]:checked');
+ chosenDifficulty=picked?picked.value:null;
+ const status=document.getElementById('startStatus');
+ if(status&&picked){
+   const label=document.querySelector('label[for="'+picked.id+'"] strong');
+   status.textContent=(label?label.textContent:'Difficulty selected')+' selected. Tap Start Random Case.';
+ }
+}
+function bindDifficultyButtons(){
+ document.querySelectorAll('input[name="difficulty"]').forEach(radio=>{
+   radio.addEventListener('change',syncDifficulty);
+ });
+}
+function pickCase(){
+ let pool=chosenDifficulty==='all'?CASES:CASES.filter(c=>String(c.difficulty)===String(chosenDifficulty));
+ let recent=loadJSON(RECENT_KEY,[]);let eligible=pool.filter(c=>!recent.includes(c.id));if(!eligible.length)eligible=pool;
+ const picked=eligible[Math.floor(Math.random()*eligible.length)];recent=[picked.id,...recent.filter(id=>id!==picked.id)].slice(0,8);saveJSON(RECENT_KEY,recent);return picked;
+}
+function begin(){
+ syncDifficulty();
+ if(!chosenDifficulty){alert('Choose a case difficulty first.');return;}
+ current=pickCase(); stage=0;history=[];usedTests=[];currentTest=null;selectedByStage=[[]];reasonByStage=[""];firstSeen={};
+ $('start').classList.add('hidden');$('end').classList.add('hidden');$('game').classList.remove('hidden');
+ $('caseId').textContent=current.id;$('caseDiff').textContent=`${current.difficulty} • ${DIFFICULTIES[current.difficulty].name}`;$('caseValue').textContent=`Case value: ${current.difficulty}`;$('caseText').textContent=current.opening;
+ renderHypothesis();renderPath();renderEvidenceBoard();renderProgress();window.scrollTo({top:0,behavior:'smooth'});
+}
+function limitsForStage(){return stage===0?6:5}
+function stageMultiplier(){return stage===0?3:stage===1?2:1}
+function renderHypothesis(){
+ $('hypSection').classList.remove('hidden');$('testSection').classList.add('hidden');
+ $('stageName').textContent=stage===0?'Initial hypothesis':`Revision ${stage}`;$('multiplier').textContent=`${stageMultiplier()}×`;
+ $('hypEyebrow').textContent=stage===0?'Before testing':stage===1?'After your first test':'After additional testing';
+ $('hypTitle').textContent=stage===0?'Initial hypothesis':'Revise your hypothesis';
+ $('hypPrompt').textContent=stage===0?'Select every region that could reasonably be involved from the opening evidence.':'Use the new evidence to keep, remove, OR add regions. This revised hypothesis can be submitted as your diagnosis, or you can choose another test if you still need evidence.';
+ $('reasonLabel').textContent=stage===0?'Reasoning — Why could these regions explain the opening symptoms?':'Reasoning — What changed in your thinking after this test? What evidence made you add, remove, or keep a region?';
+ $('limitText').textContent=`Select up to ${limitsForStage()} regions.`;
+ $('reasoning').value=reasonByStage[stage]||'';
+ renderRegions('regions',selectedByStage[stage]||[],limitsForStage(),true); updateSelectedCount();
+ $('lockHyp').textContent=stage===0?'Lock Initial Hypothesis + Choose a Test':'Submit This Diagnosis';
+ $('moreTesting').classList.toggle('hidden',stage===0);
+ if(stage>0){$('moreTesting').disabled=usedTests.length>=current.tests.length; $('moreTesting').textContent=usedTests.length>=current.tests.length?'No Tests Remaining':'Administer More Testing';}
+}
+function renderRegions(containerId,selected,limit,trackTags=false){
+ const prev=stage>0?selectedByStage[stage-1]:[];
+ $(containerId).innerHTML=Object.entries(GROUPS).map(([group,regs])=>`<div class="regionGroup"><h4>${group}</h4><div class="regionList">${regs.map((r,i)=>{
+   const id=`${containerId}_${r.replace(/[^a-z0-9]/gi,'_')}`;let tag='';
+   if(trackTags&&stage>0&&selected.includes(r)&&!prev.includes(r)){let wasEarlier=selectedByStage.slice(0,stage-1).some(a=>a.includes(r));tag=`<span class="tag ${wasEarlier?'returned':'new'}">${wasEarlier?'RETURNED':'NEW'}</span>`}
+   else if(trackTags&&stage>0&&selected.includes(r)&&prev.includes(r))tag='<span class="tag kept">KEPT</span>';
+   return `<div class="regionOpt"><input type="checkbox" id="${id}" data-region="${r}" ${selected.includes(r)?'checked':''}><label for="${id}">${r}${tag}</label></div>`}).join('')}</div></div>`).join('');
+ $(containerId).querySelectorAll('input').forEach(cb=>cb.onchange=()=>{let boxes=[...$(containerId).querySelectorAll('input:checked')];if(boxes.length>limit){cb.checked=false;alert(`You may select up to ${limit} regions at this stage.`)}if(containerId==='regions')updateSelectedCount();});
+}
+function selectedFrom(containerId){return [...$(containerId).querySelectorAll('input:checked')].map(x=>x.dataset.region)}
+function updateSelectedCount(){$('selectedCount').textContent=selectedFrom('regions').length}
+function saveCurrentHypothesis(){
+ const sel=selectedFrom('regions'),reason=$('reasoning').value.trim();
+ if(!sel.length){alert('Select at least one region.');return null;}
+ selectedByStage[stage]=sel;reasonByStage[stage]=reason;
+ expandRegions(sel).forEach(r=>{if(current.correct.includes(r)&&firstSeen[r]===undefined)firstSeen[r]=usedTests.length});
+ const prior=history[history.length-1];
+ if(!(prior&&prior.kind==='hyp'&&prior.stage===stage)){history.push({kind:'hyp',stage,regions:[...sel],reason});}
+ else {prior.regions=[...sel];prior.reason=reason;}
+ renderPath();
+ return {sel,reason};
+}
+function lockHypothesis(){
+ const saved=saveCurrentHypothesis();if(!saved)return;
+ if(stage===0){showTests();}else{finalizeDiagnosis(saved.sel,saved.reason);}
+}
+function requestMoreTesting(){
+ const saved=saveCurrentHypothesis();if(!saved)return;
+ if(usedTests.length>=current.tests.length)return alert('No tests remain for this case.');
+ showTests();
+}
+function showTests(){
+ $('hypSection').classList.add('hidden');$('testSection').classList.remove('hidden');$('stageName').textContent=usedTests.length===0?'Choose first test':'Choose another test';$('multiplier').textContent=usedTests.length===0?'Next: 2×':'Next: 1×';$('testResult').classList.add('hidden');$('postTestActions').classList.add('hidden');currentTest=null;
+ $('testTitle').textContent=usedTests.length===0?'Choose ONE test':'Choose ONE additional test';
+ const letters=['A','B','C','D','E','F'];
+ $('tests').innerHTML=current.tests.map((t,i)=>{
+   const used=usedTests.includes(i);
+   return `<button type="button" class="test ${used?'used':''}" data-i="${i}" ${used?'disabled':''}><strong>TEST OPTION ${letters[i]||i+1}</strong><span>${t[1]}</span></button>`
+ }).join('');
+ document.querySelectorAll('.test:not(:disabled)').forEach(b=>b.onclick=()=>runTest(Number(b.dataset.i)));
+}
+function runTest(i){
+ if(currentTest!==null||usedTests.includes(i))return;currentTest=i;usedTests.push(i);let t=current.tests[i];history.push({kind:'test',num:usedTests.length,name:t[1],result:t[2]});
+ document.querySelectorAll('.test').forEach(b=>b.disabled=true);$('testResult').innerHTML=`<b>TEST RESULT</b>${t[2]}`;$('testResult').classList.remove('hidden');$('postTestActions').classList.remove('hidden');$('testAgainBtn').disabled=usedTests.length>=current.tests.length;$('testAgainBtn').textContent=usedTests.length>=current.tests.length?'No Tests Remaining':'Run Another Test';renderPath();renderEvidenceBoard();
+}
+function revise(){
+ if(currentTest===null)return;stage+=1;selectedByStage[stage]=[...(selectedByStage[stage-1]||[])];reasonByStage[stage]='';renderHypothesis();window.scrollTo({top:$('hypSection').offsetTop-10,behavior:'smooth'});
+}
+function scoreCase(finalSel){
+ const expandedFinal=expandRegions(finalSel);
+ let lines=[],score=0,max=current.correct.length*current.difficulty*3;
+ current.correct.forEach(r=>{
+   let st=firstSeen[r];
+   if(st===undefined && expandedFinal.includes(r))st=2;
+   let mult=st===0?3:st===1?2:st>=2?1:0;
+   let inFinal=expandedFinal.includes(r);let pts=inFinal?mult*current.difficulty:0;
+   score+=pts;lines.push({r,st,mult,inFinal,pts});
+ });
+ const exact=expandedFinal.length===current.correct.length&&current.correct.every(r=>expandedFinal.includes(r));
+ return {score,max,lines,exact,expandedFinal};
+}
+function studentLevelReasoning(text){
+ return text
+  .replace(/The best explanation is /g,'I think the best explanation is ')
+  .replace(/The best explanation /g,'I think the best explanation ')
+  .replace(/best explains/g,'is the strongest match because')
+  .replace(/best explanation because/g,'strongest explanation because')
+  .replace(/is best supported because/g,'is most likely involved because')
+  .replace(/is most strongly supported because/g,'is most likely involved because')
+  .replace(/is the strongest localization because/g,'is most likely involved because')
+  .replace(/is the best explanation because/g,'is most likely involved because')
+  .replace(/are implicated because/g,'are probably both involved because')
+  .replace(/is implicated because/g,'is probably involved because')
+  .replace(/cross-modal/g,'across more than one sense')
+  .replace(/dopaminergic support/g,'dopamine support')
+  .replace(/medullary dysfunction/g,'medulla damage')
+  .replace(/pontine involvement/g,'pons involvement')
+  .replace(/primary sensory or motor deficit/g,'basic sensory or movement problem')
+  .replace(/cortical lesion/g,'cortex problem')
+  .replace(/localization/g,'brain-area explanation');
+}
+function finalizeDiagnosis(finalSel,reason){
+ history.push({kind:'final',regions:[...finalSel],reason});let s=scoreCase(finalSel);
+ $('game').classList.add('hidden');$('end').classList.remove('hidden');$('diagnosisHeading').textContent=s.exact?'Diagnosis matches the case':'Compare your diagnosis with the case';$('studentDx').textContent=s.expandedFinal.join(' + ');$('actualDx').textContent=current.correct.join(' + ');$('score').textContent=s.score;$('maxScore').textContent=s.max;
+ $('scoreBreakdown').innerHTML=s.lines.map(x=>`<div class="scoreLine"><div><b>${x.r}</b><div class="helper">${x.st===0?'Identified before testing':x.st===1?'First identified after the first test':x.st>=2?'First identified after additional testing':'Not identified'}${!x.inFinal?' • not retained in final diagnosis':''}</div></div><div>${x.mult?x.mult+'×':'—'}</div><div class="${x.pts?'good':'bad'}"><b>${x.pts} pts</b></div></div>`).join('');
+ $('studentReason').innerHTML=`<p>${escapeHTML(reason||'No written reasoning submitted.')}</p>`;
+ $('modelReason').innerHTML=`<p>${studentLevelReasoning(current.model)}${hierarchyNote(current.primaryCorrect)}</p>`;
+ renderStructureFeedback(s.expandedFinal);const prog=awardProgress(s.score,s.max,s.exact);$('xpAward').innerHTML=`<div class="eyebrow">Progress earned</div><h3 style="margin:5px 0">+${prog.xpGain} XP • ${prog.rank}</h3><div class="helper">${prog.p.cases} cases completed • current accuracy streak: ${prog.p.streak} • best streak: ${prog.p.best}</div>`;renderProgress();
+ renderEndPath();window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderEvidenceBoard(){
+ if(!current||!$('evidenceBoard'))return;
+ const tests=history.filter(h=>h.kind==='test');
+ let html='<div class="evidenceItem"><b>Opening evidence</b>Use the patient presentation above as your baseline. Keep both impaired and preserved abilities in mind.</div>';
+ tests.forEach(h=>{html+=`<div class="evidenceItem testEvidence"><b>Test ${h.num}: ${escapeHTML(h.name)}</b>${escapeHTML(h.result)}</div>`});
+ if(!tests.length)html+='<div class="helper">No tests have been run yet.</div>';
+ $('evidenceBoard').innerHTML=html;
+}
+function renderStructureFeedback(finalExpanded){
+ const selected=new Set(finalExpanded),correct=new Set(current.correct);const items=[];
+ [...new Set([...current.correct,...finalExpanded])].forEach(r=>{
+   const fn=REGION_FUNCTIONS[r]||'has functions relevant to neurological behavior';
+   if(correct.has(r)&&selected.has(r))items.push(`<div class="feedbackCard supported"><b>✓ ${escapeHTML(r)} — supported</b><div>${escapeHTML(r)} ${escapeHTML(fn)}. This choice fits the case evidence and belongs in the diagnosis.</div></div>`);
+   else if(correct.has(r)&&!selected.has(r))items.push(`<div class="feedbackCard missed"><b>→ ${escapeHTML(r)} — evidence you missed</b><div>${escapeHTML(r)} ${escapeHTML(fn)}. The case pattern and test evidence support including it.</div></div>`);
+   else if(selected.has(r)&&!correct.has(r))items.push(`<div class="feedbackCard unsupported"><b>✕ ${escapeHTML(r)} — not supported enough</b><div>${escapeHTML(r)} ${escapeHTML(fn)}. That function may overlap with part of the case, but the full pattern—including preserved abilities—does not require this region.</div></div>`);
+ });
+ $('structureFeedback').innerHTML=items.join('')||'<div class="helper">No structure feedback available.</div>';
+}
+function runAnotherTest(){if(usedTests.length>=current.tests.length)return;showTests();window.scrollTo({top:$('testSection').offsetTop-10,behavior:'smooth'})}
+function submitFromTest(){const sel=selectedByStage[stage]||[];if(!sel.length){alert('Return to your hypothesis and select at least one region before submitting.');return;}finalizeDiagnosis(sel,reasonByStage[stage]||'')}
+
+function escapeHTML(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function renderPath(){
+ if(!history.length){$('path').innerHTML='<span class="helper">Your choices will appear here.</span>';return}
+ $('path').innerHTML=history.map(h=>h.kind==='hyp'?`<span class="pathStep"><b>${h.stage===0?'Initial':`Revision ${h.stage}`}</b>: ${h.regions.join(', ')}</span>`:h.kind==='test'?`<span class="pathStep"><b>Test ${h.num}</b>: ${h.name}</span>`:'').filter(Boolean).join('<span class="arrow">→</span>');
+}
+function renderEndPath(){
+ $('endPath').innerHTML=history.map(h=>{
+   if(h.kind==='hyp')return `<span class="pathStep"><b>${h.stage===0?'Initial hypothesis':`Revised hypothesis ${h.stage}`}</b><br>${h.regions.join(', ')}</span>`;
+   if(h.kind==='test')return `<span class="pathStep"><b>Selected test ${h.num}</b><br>${h.name}<br><br><b>Result:</b> ${h.result}</span>`;
+   return `<span class="pathStep"><b>Final diagnosis</b><br>${h.regions.join(', ')}</span>`;
+ }).join('<span class="arrow">→</span>');
+}
+function newCase(){$('end').classList.add('hidden');$('start').classList.remove('hidden');$('game').classList.add('hidden');renderProgress();window.scrollTo({top:0,behavior:'smooth'})}
+
+function bindUI(){
+ bindDifficultyButtons();
+ syncDifficulty();
+ const start=$('startBtn');
+ if(start){
+   start.onclick=safeBegin;
+   start.addEventListener('touchend',function(e){
+     e.preventDefault();
+     safeBegin(e);
+   },{passive:false});
+ }
+ $('lockHyp').onclick=lockHypothesis;
+ $('moreTesting').onclick=requestMoreTesting;
+ $('continueAfterTest').onclick=revise;
+ $('testAgainBtn').onclick=runAnotherTest;
+ $('submitFromTestBtn').onclick=submitFromTest;
+ renderProgress();
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',bindUI);}else{bindUI();}
+</script>
+</body>
+</html>
